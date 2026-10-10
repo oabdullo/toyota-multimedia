@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="true" />
+
+    <!-- Vehicle properties consumed by the cluster: speed, gear, range,
+         outside temp, fuel level, cruise/ADAS state. -->
+    <uses-permission android:name="android.car.permission.CAR_SPEED" />
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE" />
+    <uses-permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS" />
+    <uses-permission android:name="android.car.permission.CAR_ENERGY" />
+    <uses-permission android:name="android.car.permission.CAR_INFO" />
+    <uses-permission android:name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT" />
+
+    <!-- For the "now playing" widget mirrored from the IVI head unit. -->
+    <uses-permission
+        android:name="android.permission.MEDIA_CONTENT_CONTROL"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:name=".ClusterApp"
+        android:allowBackup="false"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:label="@string/cluster_app_name"
+        android:supportsRtl="false"
+        android:theme="@style/Theme.Cluster">
+
+        <!-- android.car classes are provided by the AAOS runtime; declared
+             non-required to match how the launcher does it (the formal
+             shared library isn't registered with PackageManager). -->
+        <uses-library
+            android:name="android.car"
+            android:required="false" />
+
+        <!-- ClusterActivity is intentionally launch-display-aware:
+             - singleInstance keeps one instance pinned to whatever display
+               it first lands on (the cluster display).
+             - resumeWhilePausing lets it stay resumed when another task
+               takes focus on the IVI display - critical because the cluster
+               must always be visible/animating while the car is on.
+             - taskAffinity="" prevents the system from grouping us with
+               com.toyota.cluster's other tasks across displays.
+             - distractionOptimized=true marks us safe to render while the
+               vehicle is moving (CarUxRestrictions). -->
+        <activity
+            android:name=".ClusterActivity"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:resumeWhilePausing="true"
+            android:stateNotNeeded="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Cluster"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|density|fontScale|uiMode|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+        </activity>
+    </application>
+</manifest>
